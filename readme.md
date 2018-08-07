@@ -20,36 +20,5 @@ stash -l : list
 stash -c <filename> : cat
 
 
-step 1:
-=====
-command line args
-
-
-step 2: 
-====
-sending and retrieving files
-
-
-Step 3:
-====
-deleting files
-
-
-Step 4:
-====
-How should they be tracked?
-SQLite?
-
-
-Step 5:
-=====
-listing files
-
-
-Step 6:
-====
-Using from command line in any directory
-
-
 
 
