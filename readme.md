@@ -21,4 +21,11 @@ stash -c <filename> : cat
 
 
 
+Planned Updates
+=====
+- support for moving multiple files at a time
+- Betters Errors and Printing
+- Config File
+- partial file name matching
+
 
