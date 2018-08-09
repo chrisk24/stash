@@ -17,8 +17,7 @@ fn get_help_text() -> String {
         To Show \t\t stash cat <filename>".to_string()
 }
 
-
-fn list_files_stored() -> String {
+fn list_files_stored(args: &Vec<String>) -> String {
     let paths: Vec<PathBuf> = fs::read_dir(SAVE_PATH).unwrap()
                                 .map(|p| p.unwrap().path())
                                 .collect();
@@ -27,77 +26,70 @@ fn list_files_stored() -> String {
 }
 
 
-fn cat_file(arg: &str) -> String {
-    let path = SAVE_PATH.to_string() + arg;
-    let fl = fs::read_to_string(path).unwrap();
+fn cat_file(args: &Vec<String>) -> String {
+    
+    let filename = args.get(2).unwrap();
+
+    let path = SAVE_PATH.to_string() + &filename;
+    
+    //println!("{}", &path);
+    
+    let fl = fs::read_to_string(&path).unwrap();
+    
     fl
 }
 
-fn ret_file(arg: &str) -> String {
-    let copy_to = arg.to_string();
-    let copy_from = SAVE_PATH.to_string() + arg;
-    fs::copy(&copy_from, &copy_to).unwrap();
-    format!("{} -> {}", copy_from, copy_to)
+fn ret_file(args: &Vec<String>) -> String {
+    let filename = args.get(2).unwrap();
+
+    //let copy_to = (&filename).to_string();
+    let copy_from = SAVE_PATH.to_string() + &filename;
+    fs::copy(&copy_from, &filename).unwrap();
+    format!("{} -> {}", &copy_from, &filename)
 }
 
-fn stash_file(arg: &str) -> String {
-    let copy_from = arg.to_string();
-    let copy_to = SAVE_PATH.to_string() + arg;
-    fs::copy(&copy_from, &copy_to).unwrap();
-    format!("{} -> {}", copy_from, copy_to)
+fn stash_file(args: &Vec<String>) -> String {
+    let filename = args.get(2).unwrap();
+
+    //let copy_from = (&filename).to_string();
+    let copy_to = SAVE_PATH.to_string() + &filename;
+    fs::copy(&filename, &copy_to).unwrap();
+    format!("{} -> {}", &filename, &copy_to)
 }
 
 
-fn del_file(arg: &str) -> String {
-    let path = SAVE_PATH.to_string() + arg;
+fn del_file(args: &Vec<String>) -> String {
+    let filename = args.get(2).unwrap();
+    
+    let path = SAVE_PATH.to_string() + &filename;
     fs::remove_file(&path).unwrap();
     format!("Removed: {}",path)
 }
 
 
-//get help or list
-fn process_two_args(args: Vec<String>) -> String {
-    let flag: &str = args.get(1).unwrap(); 
-    
-    match flag {
-        "lst" => list_files_stored(),
-        _ => get_help_text(),
-    }   
-}
-
-
-//get show, store, delete, retrieve
-//requires: len(args) >= 3
-fn process_three_args(args: Vec<String>) -> String {
-    let flag: &str = args.get(1).unwrap();
-    let arg: &str = args.get(2).unwrap();
-    match flag {
-        "cat" => cat_file(arg),
-        "ret" => ret_file(arg),
-        "send" => stash_file(arg),
-        "del" => del_file(arg),
-        _ => get_help_text(),
-    }
-}
-
 //returns what will be printed to the user
-fn process_args(args: Vec<String>) -> String {
-    match args.len() {
-        2 => process_two_args(args),
-        3 => process_three_args(args),
-        _ => get_help_text(),
+fn process_args(args: &Vec<String>) -> String {
+    let arg: &str = args.get(1).unwrap();
+
+    match arg {
+        "cat" => cat_file(&args),
+        "ret" => ret_file(&args),
+        "send" => stash_file(&args),
+        "del" => del_file(&args),
+        "lst" => list_files_stored(&args),
+        _ => get_help_text()
     }
 }
-
-
-
 
 
 fn main() {
-    println!("Hello, Stasher!");
     let args: Vec<String> = env::args().collect(); //accept command line args
     println!("{:?}", args); //debug print
 
-    let result = process_args(args);
+    let result = if (args.len() > 1) 
+                    {process_args(&args)}
+                else 
+                    {get_help_text()};
+
     println!("{}", result);
 }
