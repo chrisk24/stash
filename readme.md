@@ -13,15 +13,15 @@ If there is a notes file you want to have access from anywhere
 
 Commands
 ======
-stash -s <filename> : send
+stash send filename : send
 
-stash -r <filename> : retrieve
+stash ret filename : retrieve
 
-stash -d <filename> : delete 
+stash del filename : delete 
 
-stash -l : list
+stash lst : list
 
-stash -c <filename> : cat
+stash cat filename : cat
 
 
 
