@@ -47,5 +47,5 @@ For now, running requires you to have a stash folder in your home directory
 It will search for a file Stash.toml here, this file is for configuration
 of the savepath.
 ```
-save\_path = "C:/path/to/my/storage/directory"
+save_path = "C:/path/to/my/storage/directory"
 ```
