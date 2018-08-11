@@ -32,7 +32,6 @@ Planned Updates
 =====
 - support for moving multiple files at a time
 - Betters Errors and Printing
-- Config File
 - partial file name matching
 
 
@@ -43,3 +42,10 @@ Stash is built entirely in Rust, to compile you must have Rust <a href="https://
 then you can simply type 
 ```cargo build```
 to compile the application
+
+For now, running requires you to have a stash folder in your home directory
+It will search for a file Stash.toml here, this file is for configuration
+of the savepath.
+```
+save\_path = "C:/path/to/my/storage/directory"
+```

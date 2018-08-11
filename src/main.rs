@@ -1,8 +1,20 @@
+extern crate serde;
+
+#[macro_use]
+extern crate serde_derive;
+extern crate toml;
+extern crate dirs;
+
+
 use std::env;
 use std::fs;
 use std::path::PathBuf;
 
-const SAVE_PATH: &str = "C:\\Users\\Public\\stash\\";
+
+#[derive(Deserialize)]
+struct Config {
+    save_path: String
+}
 
 
 fn get_help_text() -> String {
@@ -17,8 +29,8 @@ fn get_help_text() -> String {
         To Show \t\t stash cat <filename>".to_string()
 }
 
-fn list_files_stored(args: &Vec<String>) -> String {
-    let paths: Vec<PathBuf> = fs::read_dir(SAVE_PATH).unwrap()
+fn list_files_stored(args: &Vec<String>, save_path: &PathBuf) -> String {
+    let paths: Vec<PathBuf> = fs::read_dir(save_path).unwrap()
                                 .map(|p| p.unwrap().path())
                                 .collect();
 
@@ -26,11 +38,11 @@ fn list_files_stored(args: &Vec<String>) -> String {
 }
 
 
-fn cat_file(args: &Vec<String>) -> String {
+fn cat_file(args: &Vec<String>, save_path: &PathBuf) -> String {
     
     let filename = args.get(2).unwrap();
 
-    let path = SAVE_PATH.to_string() + &filename;
+    let path = save_path.join(&filename);
     
     //println!("{}", &path);
     
@@ -39,55 +51,79 @@ fn cat_file(args: &Vec<String>) -> String {
     fl
 }
 
-fn ret_file(args: &Vec<String>) -> String {
+fn ret_file(args: &Vec<String>, save_path: &PathBuf) -> String {
     let filename = args.get(2).unwrap();
 
     //let copy_to = (&filename).to_string();
-    let copy_from = SAVE_PATH.to_string() + &filename;
+    let copy_from = save_path.join(&filename);
     fs::copy(&copy_from, &filename).unwrap();
-    format!("{} -> {}", &copy_from, &filename)
+    format!("{:?} -> {}", &copy_from, &filename)
 }
 
-fn stash_file(args: &Vec<String>) -> String {
+fn stash_file(args: &Vec<String>, save_path: &PathBuf) -> String {
     let filename = args.get(2).unwrap();
 
     //let copy_from = (&filename).to_string();
-    let copy_to = SAVE_PATH.to_string() + &filename;
+    let copy_to = save_path.join(&filename);
     fs::copy(&filename, &copy_to).unwrap();
-    format!("{} -> {}", &filename, &copy_to)
+    format!("{} -> {:?}", &filename, &copy_to)
 }
 
 
-fn del_file(args: &Vec<String>) -> String {
+fn del_file(args: &Vec<String>, save_path: &PathBuf) -> String {
     let filename = args.get(2).unwrap();
     
-    let path = SAVE_PATH.to_string() + &filename;
+    let path = save_path.join(&filename);
     fs::remove_file(&path).unwrap();
-    format!("Removed: {}",path)
+    format!("Removed: {:?}",path)
 }
 
 
 //returns what will be printed to the user
-fn process_args(args: &Vec<String>) -> String {
+fn process_args(args: &Vec<String>, save_path: &PathBuf) -> String {
     let arg: &str = args.get(1).unwrap();
 
     match arg {
-        "cat" => cat_file(&args),
-        "ret" => ret_file(&args),
-        "send" => stash_file(&args),
-        "del" => del_file(&args),
-        "lst" => list_files_stored(&args),
+        "cat" => cat_file(&args, save_path),
+        "ret" => ret_file(&args, save_path),
+        "send" => stash_file(&args, save_path),
+        "del" => del_file(&args, save_path),
+        "lst" => list_files_stored(&args, save_path),
         _ => get_help_text()
     }
+}
+
+//searches for the config file in the home directory,
+//the default directory
+fn get_config(config_name:  &str) -> Config {
+    println!("{}",config_name);
+
+    let config_path_base = dirs::home_dir().unwrap();
+    
+    println!("{:?}", &config_path_base);
+
+    let config_path = config_path_base.join("stash").join(config_name);
+    
+    println!("{:?}", &config_path);
+
+    let config_str = fs::read_to_string(&config_path).unwrap();
+
+    println!("{:?}", &config_str);
+
+    let config: Config = toml::from_str(&config_str).unwrap();
+   
+    config
 }
 
 
 fn main() {
     let args: Vec<String> = env::args().collect(); //accept command line args
     println!("{:?}", args); //debug print
-
+    let config = get_config("Stash.toml");
+    println!("Config: {:?}", &config.save_path);
+    let save_path = PathBuf::from(&config.save_path);
     let result = if (args.len() > 1) 
-                    {process_args(&args)}
+                    {process_args(&args, &save_path)}
                 else 
                     {get_help_text()};
 
