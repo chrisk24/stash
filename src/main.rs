@@ -23,9 +23,9 @@ fn get_help_text() -> String {
         Commands:\n
         Get Help \t\t stash help\n
         To Store \t\t stash send <filename>\n
-        To Get \t\t stash ret <filename>\n
-        To Delete \t\t stash del <filename>\n
-        To List \t\t stash lst\n
+        To Get \t\t stash get <filename>\n
+        To Delete \t\t stash rm <filename>\n
+        To List \t\t stash ls\n
         To Show \t\t stash cat <filename>".to_string()
 }
 
@@ -85,10 +85,10 @@ fn process_args(args: &Vec<String>, save_path: &PathBuf) -> String {
 
     match arg {
         "cat" => cat_file(&args, save_path),
-        "ret" => ret_file(&args, save_path),
+        "get" => ret_file(&args, save_path),
         "send" => stash_file(&args, save_path),
-        "del" => del_file(&args, save_path),
-        "lst" => list_files_stored(&args, save_path),
+        "rm" => del_file(&args, save_path),
+        "ls" => list_files_stored(&args, save_path),
         _ => get_help_text()
     }
 }
@@ -100,15 +100,15 @@ fn get_config(config_name:  &str) -> Config {
 
     let config_path_base = dirs::home_dir().unwrap();
     
-    println!("{:?}", &config_path_base);
+    //println!("{:?}", &config_path_base);
 
     let config_path = config_path_base.join("stash").join(config_name);
     
-    println!("{:?}", &config_path);
+    //println!("{:?}", &config_path);
 
     let config_str = fs::read_to_string(&config_path).unwrap();
 
-    println!("{:?}", &config_str);
+    //println!("{:?}", &config_str);
 
     let config: Config = toml::from_str(&config_str).unwrap();
    
@@ -118,9 +118,9 @@ fn get_config(config_name:  &str) -> Config {
 
 fn main() {
     let args: Vec<String> = env::args().collect(); //accept command line args
-    println!("{:?}", args); //debug print
+    //println!("{:?}", args); //debug print
     let config = get_config("Stash.toml");
-    println!("Config: {:?}", &config.save_path);
+    //println!("Config: {:?}", &config.save_path);
     let save_path = PathBuf::from(&config.save_path);
     let result = if (args.len() > 1) 
                     {process_args(&args, &save_path)}
